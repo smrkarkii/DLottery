@@ -1,5 +1,5 @@
 {
-  "homepage": "https://smrkarkii.github.io/DecentralizedLottery/",
+  "homepage": "https://smrkarkii.github.io/DLottery/",
   "name": "frontend",
   "private": true,
   "version": "0.1.0",
@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
   "build": "tsc && vite build",
-  "deploy": "gh-pages -d dist -u \"smrkarkii <076bct080.smriti@pcampus.edu.np>\" -r git@github.com-karki:smrkarkii/DLottery.git"
+  "deploy": "gh-pages -d dist -r git@github.com-karki:smrkarkii/DLottery.git"
 
   },
   "dependencies": {
