@@ -1,7 +1,7 @@
 import web3 from "./web3"
-const address = "0xf3C50a9948F9dE5AB3974C7EF6FF24893E6AF0FF";
+const address = "0xa646ea2a520A132fBcf9fBF752Df0d7278e3A554";
 
-const abi = [
+const abi =[
     {
       "inputs": [
         {
@@ -17,6 +17,32 @@ const abi = [
       ],
       "stateMutability": "nonpayable",
       "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "reason",
+          "type": "string"
+        }
+      ],
+      "name": "ErrorOccurred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "requestId",
+          "type": "uint256"
+        }
+      ],
+      "name": "FulfillRandomWordsStart",
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -73,6 +99,44 @@ const abi = [
         }
       ],
       "name": "PlayerEntered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "winnerIndex",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "selectedPlayer",
+          "type": "address"
+        }
+      ],
+      "name": "PlayerSelectionComplete",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "winner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "PrizeTransferAttempt",
       "type": "event"
     },
     {

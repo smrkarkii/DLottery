@@ -23,7 +23,7 @@ contract Lottery is VRFV2WrapperConsumerBase, ConfirmedOwner {
     uint256 public currentRound = 0;
 
     // VRF v2 configuration
-    uint32 callbackGasLimit = 100000;
+    uint32 callbackGasLimit = 300000;
     uint16 requestConfirmations = 3;
     uint32 numWords = 1; // We only need one random word
 
@@ -45,6 +45,10 @@ contract Lottery is VRFV2WrapperConsumerBase, ConfirmedOwner {
     event RequestedRandomness(uint256 requestId);
     event WinnerPicked(address winner, uint256 prize, uint256 roundNumber);
     event PlayerEntered(address player, uint256 roundNumber);
+    event FulfillRandomWordsStart(uint256 requestId);
+    event PlayerSelectionComplete(uint256 winnerIndex, address selectedPlayer);
+    event PrizeTransferAttempt(address winner, uint256 amount);
+    event ErrorOccurred(string reason);
 
     constructor(
         address _linkAddress,
@@ -119,17 +123,26 @@ contract Lottery is VRFV2WrapperConsumerBase, ConfirmedOwner {
         uint256 _requestId,
         uint256[] memory _randomWords
     ) internal override {
+        emit FulfillRandomWordsStart(_requestId);
         // Verify request exists
         require(s_requests[_requestId].paid > 0, "request not found");
         
         // Update request status
         s_requests[_requestId].fulfilled = true;
         s_requests[_requestId].randomWords = _randomWords;
+
+        // Safety check for empty players array
+        if (players.length == 0) {
+            emit ErrorOccurred("No players in lottery");
+            return;
+        }
         
         // Use the random number to select a winner
         uint256 winnerIndex = _randomWords[0] % players.length;
         address payable winningPlayer = players[winnerIndex];
         winner = winningPlayer;
+
+        emit PlayerSelectionComplete(winnerIndex, winningPlayer);
         
         // Get prize amount
         uint256 prize = address(this).balance;
@@ -142,15 +155,20 @@ contract Lottery is VRFV2WrapperConsumerBase, ConfirmedOwner {
             playerCount: players.length
         }));
         
-        // Transfer the prize to the winner
-        winningPlayer.transfer(prize);
+        // Reset state before external calls
+        // address payable[] memory oldPlayers = players;
+        players = new address payable[](0);
         
         // Emit event with this round's data
         emit WinnerPicked(winningPlayer, prize, currentRound);
         
-        // Increment round counter and reset players array
+        // Increment round counter
         currentRound++;
-        players = new address payable[](0);
+        
+        // Attempt transfer
+        emit PrizeTransferAttempt(winningPlayer, prize);
+        (bool success, ) = winningPlayer.call{value: prize}("");
+        require(success, "Prize transfer failed");
     }
 
     function getLotteryHistory() public view returns (LotteryRound[] memory) {
